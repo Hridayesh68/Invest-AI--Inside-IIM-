@@ -34,8 +34,8 @@ router.post('/research', async (req, res) => {
       });
     });
 
-    if (finalState.error) {
-      sendEvent('error', { message: finalState.error });
+    if (finalState.agentError) {
+      sendEvent('error', { message: finalState.agentError });
       res.end();
       return;
     }
@@ -65,6 +65,7 @@ router.post('/research', async (req, res) => {
     }
 
     sendEvent('complete', {
+      company: finalState.companyName,
       verdict: finalState.verdict,
       score: finalState.score,
       ticker: finalState.ticker,

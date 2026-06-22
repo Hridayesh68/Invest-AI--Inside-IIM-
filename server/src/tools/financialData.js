@@ -1,4 +1,7 @@
-const yahooFinance = require('yahoo-finance2').default;
+const YahooFinanceClass = require('yahoo-finance2').default;
+const yahooFinance = new YahooFinanceClass({ suppressNotices: ['yahooSurvey'] });
+
+
 
 /**
  * Fetches comprehensive financial data for a company from Yahoo Finance.
