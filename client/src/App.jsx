@@ -4,6 +4,7 @@ import SearchBar from './components/SearchBar';
 import AgentThinking from './components/AgentThinking';
 import VerdictCard from './components/VerdictCard';
 import FinancialMetrics from './components/FinancialMetrics';
+import AnalysisCharts from './components/AnalysisCharts';
 import SentimentSection from './components/SentimentSection';
 import CompetitiveSection from './components/CompetitiveSection';
 import StrengthsRisks from './components/StrengthsRisks';
@@ -256,6 +257,11 @@ export default function App() {
             <div style={{ marginTop: 20 }}>
               <FinancialMetrics financials={result.financials} />
             </div>
+
+            {/* Analysis Charts — full width */}
+            {result.financials && (
+              <AnalysisCharts financials={result.financials} />
+            )}
 
             {/* Sentiment + Competitive — 2 columns */}
             <div className="results-grid" style={{ marginTop: 20 }}>

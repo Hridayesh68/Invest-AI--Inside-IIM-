@@ -941,3 +941,17 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', sans-serif; font-weight: 
   .search-wrapper { flex-direction: column; }
   .search-btn { width: 100%; justify-content: center; }
 }
+
+/* ─── Analysis Charts Tab Buttons ─── */
+.tab-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tab-btn:hover {
+  color: var(--text-primary) !important;
+  border-color: var(--border-bright) !important;
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+.tab-btn.active {
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15) !important;
+}

@@ -1,6 +1,6 @@
 import { Search, Loader2, Zap } from 'lucide-react';
 
-const SUGGESTIONS = ['Apple', 'Tesla', 'Zomato', 'Nvidia', 'Infosys', 'Amazon'];
+const SUGGESTIONS = ['Apple', 'Tesla', 'Eternal', 'Nvidia', 'Infosys', 'Amazon'];
 
 export default function SearchBar({ value, onChange, onSearch, isLoading }) {
   const handleKey = (e) => {
@@ -16,7 +16,7 @@ export default function SearchBar({ value, onChange, onSearch, isLoading }) {
             id="company-search"
             className="search-input"
             type="text"
-            placeholder="Enter company name (e.g. Apple, Tesla, Zomato...)"
+            placeholder="Enter company name (e.g. Apple, Tesla, Eternal...)"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKey}
