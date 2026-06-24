@@ -31,9 +31,9 @@ export default function AnalysisCharts({ financials }) {
 
   // ─── Debt & Cash Data ───
   const balanceSheetData = [
-    { name: 'Total Revenue', amount: financials.totalRevenue || 0, fill: '#3b82f6' },
-    { name: 'Total Cash', amount: financials.totalCash || 0, fill: '#10b981' },
-    { name: 'Total Debt', amount: financials.totalDebt || 0, fill: '#ef4444' },
+    { name: 'Total Revenue', amount: financials.totalRevenue || 0, fill: '#9CB080' },
+    { name: 'Total Cash', amount: financials.totalCash || 0, fill: '#618764' },
+    { name: 'Total Debt', amount: financials.totalDebt || 0, fill: '#c25953' },
   ];
 
   // ─── Price Comparison Data ───

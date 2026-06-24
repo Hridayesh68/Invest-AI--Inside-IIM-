@@ -2,37 +2,37 @@
 
 /* ─── CSS Custom Properties ────────────────────────────────────────────────── */
 :root {
-  --bg-base: #050810;
-  --bg-surface: #0c0f1a;
-  --bg-card: #111520;
-  --bg-card-hover: #161b2b;
-  --border: rgba(255, 255, 255, 0.07);
-  --border-bright: rgba(255, 255, 255, 0.15);
+  --bg-base: #273338;
+  --bg-surface: #1e282c;
+  --bg-card: #2B5748;
+  --bg-card-hover: #346252;
+  --border: rgba(156, 176, 128, 0.12);
+  --border-bright: rgba(156, 176, 128, 0.25);
 
-  --accent-blue: #3b82f6;
-  --accent-purple: #8b5cf6;
-  --accent-cyan: #06b6d4;
-  --accent-green: #10b981;
-  --accent-red: #ef4444;
-  --accent-yellow: #f59e0b;
-  --accent-orange: #f97316;
+  --accent-blue: #9CB080;
+  --accent-purple: #618764;
+  --accent-cyan: #7fa687;
+  --accent-green: #9CB080;
+  --accent-red: #c25953;
+  --accent-yellow: #d1a153;
+  --accent-orange: #d97d52;
 
-  --invest-color: #10b981;
-  --pass-color: #ef4444;
-  --hold-color: #f59e0b;
+  --invest-color: #9CB080;
+  --pass-color: #c25953;
+  --hold-color: #d1a153;
 
-  --text-primary: #f0f4ff;
-  --text-secondary: #94a3b8;
-  --text-muted: #4b5563;
+  --text-primary: #f1f5f3;
+  --text-secondary: #b2c2b9;
+  --text-muted: #738f81;
 
-  --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  --gradient-invest: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  --gradient-pass: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-  --gradient-hold: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  --gradient-primary: linear-gradient(135deg, #9CB080 0%, #618764 100%);
+  --gradient-invest: linear-gradient(135deg, #618764 0%, #9CB080 100%);
+  --gradient-pass: linear-gradient(135deg, #96423c 0%, #c25953 100%);
+  --gradient-hold: linear-gradient(135deg, #ad803c 0%, #d1a153 100%);
 
-  --glow-blue: 0 0 40px rgba(59, 130, 246, 0.3);
-  --glow-green: 0 0 40px rgba(16, 185, 129, 0.3);
-  --glow-red: 0 0 40px rgba(239, 68, 68, 0.3);
+  --glow-blue: 0 0 40px rgba(156, 176, 128, 0.25);
+  --glow-green: 0 0 40px rgba(97, 135, 100, 0.25);
+  --glow-red: 0 0 40px rgba(194, 89, 83, 0.25);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -80,9 +80,9 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', sans-serif; font-weight: 
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 60% at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(156, 176, 128, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(97, 135, 100, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 50% 50%, rgba(43, 87, 72, 0.04) 0%, transparent 60%);
   pointer-events: none;
   z-index: 0;
 }
