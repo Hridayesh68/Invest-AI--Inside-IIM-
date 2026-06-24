@@ -96,11 +96,24 @@ async function fetchFinancialData(ticker) {
  */
 async function findTicker(companyName) {
   try {
+    // If the input already looks like a ticker (e.g. ETERNAL.NS or AAPL), try direct validation
+    if (/^[A-Z0-9.\-]+$/i.test(companyName.trim())) {
+      try {
+        const quote = await yahooFinance.quote(companyName.trim().toUpperCase());
+        if (quote && quote.symbol) {
+          return quote.symbol;
+        }
+      } catch (_) {}
+    }
+
     const results = await yahooFinance.search(companyName, { quotesCount: 5 });
     if (results.quotes && results.quotes.length > 0) {
-      // Prefer equity type results
-      const equity = results.quotes.find(q => q.quoteType === 'EQUITY');
-      return equity ? equity.symbol : results.quotes[0].symbol;
+      // Prefer equity type results with a symbol
+      const equity = results.quotes.find(q => q.quoteType === 'EQUITY' && q.symbol);
+      if (equity) return equity.symbol;
+
+      const withSymbol = results.quotes.find(q => q.symbol);
+      if (withSymbol) return withSymbol.symbol;
     }
     return null;
   } catch (error) {

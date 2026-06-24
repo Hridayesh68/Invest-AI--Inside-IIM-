@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Report = require('../models/Report');
 const { runInvestmentAgent } = require('../agents/investmentAgent');
 
@@ -41,27 +42,31 @@ router.post('/research', async (req, res) => {
     }
 
     // Save to MongoDB
-    try {
-      const report = new Report({
-        company: finalState.companyName,
-        ticker: finalState.ticker,
-        verdict: finalState.verdict,
-        score: finalState.score,
-        summary: finalState.summary,
-        profile: finalState.profile,
-        financials: finalState.financials,
-        sentimentAnalysis: finalState.sentimentAnalysis,
-        competitiveAnalysis: finalState.competitiveAnalysis,
-        reasoning: finalState.reasoning,
-        keyStrengths: finalState.keyStrengths,
-        keyRisks: finalState.keyRisks,
-        recommendation: finalState.recommendation,
-      });
-      const saved = await report.save();
-      sendEvent('saved', { reportId: saved._id });
-    } catch (dbError) {
-      console.error('[routes] MongoDB save error:', dbError.message);
-      // Don't fail — still send results
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const report = new Report({
+          company: finalState.companyName,
+          ticker: finalState.ticker,
+          verdict: finalState.verdict,
+          score: finalState.score,
+          summary: finalState.summary,
+          profile: finalState.profile,
+          financials: finalState.financials,
+          sentimentAnalysis: finalState.sentimentAnalysis,
+          competitiveAnalysis: finalState.competitiveAnalysis,
+          reasoning: finalState.reasoning,
+          keyStrengths: finalState.keyStrengths,
+          keyRisks: finalState.keyRisks,
+          recommendation: finalState.recommendation,
+        });
+        const saved = await report.save();
+        sendEvent('saved', { reportId: saved._id });
+      } catch (dbError) {
+        console.error('[routes] MongoDB save error:', dbError.message);
+        // Don't fail — still send results
+      }
+    } else {
+      console.log('[routes] Skipping MongoDB save: database is disconnected');
     }
 
     sendEvent('complete', {
@@ -92,6 +97,9 @@ router.post('/research', async (req, res) => {
 
 // GET /api/reports — Get past research reports
 router.get('/reports', async (req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.json([]);
+  }
   try {
     const reports = await Report.find({})
       .select('company ticker verdict score summary createdAt')
@@ -105,6 +113,9 @@ router.get('/reports', async (req, res) => {
 
 // GET /api/reports/:id — Get single report
 router.get('/reports/:id', async (req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ error: 'Database disconnected' });
+  }
   try {
     const report = await Report.findById(req.params.id);
     if (!report) return res.status(404).json({ error: 'Report not found' });
@@ -116,6 +127,9 @@ router.get('/reports/:id', async (req, res) => {
 
 // DELETE /api/reports/:id — Delete a report
 router.delete('/reports/:id', async (req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ error: 'Database disconnected' });
+  }
   try {
     await Report.findByIdAndDelete(req.params.id);
     res.json({ message: 'Report deleted' });
