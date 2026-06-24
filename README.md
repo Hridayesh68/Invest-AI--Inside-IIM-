@@ -1,164 +1,163 @@
-# InvestAI — AI Investment Research Agent
+# InvestAI — Autonomous Investment Research Agent
 
 > **Take-Home Assignment** | AI Product Development Engineer (Intern) | InsideIIM × Altuni AI Labs
 
----
-
-## Overview
-
-**InvestAI** is an autonomous AI agent that takes a company name, performs multi-dimensional research, and delivers a clear **INVEST / PASS / HOLD** verdict with a confidence score (0–100) and detailed reasoning.
-
-The agent researches:
-- 📊 **Financial health** — market cap, P/E, margins, revenue growth, debt, FCF (via Yahoo Finance)
-- 📰 **Sentiment & news** — market mood, investor sentiment, key catalysts
-- ⚔️ **Competitive position** — economic moat, main competitors, disruption risk
-- 🧠 **AI verdict** — synthesizes all data into a final investment decision
-
-Results stream live in the UI step-by-step, and every report is saved to MongoDB for future reference.
+InvestAI is an advanced, autonomous AI agent designed to research any publicly traded company and deliver a clear **INVEST / PASS / HOLD** verdict. It aggregates financial data, parses market sentiment, assesses competitive moats, and streams step-by-step progress live to the user.
 
 ---
 
-## How to Run
+## 📋 Table of Contents
+1. [Overview](#-overview)
+2. [How to Run (Setup Steps)](#-how-to-run)
+3. [How It Works (Approach & Architecture)](#-how-it-works)
+4. [Key Decisions & Trade-offs](#-key-decisions--trade-offs)
+5. [Example Runs](#-example-runs)
+6. [What We Would Improve with More Time](#-what-we-would-improve-with-more-time)
+7. [BONUS: LLM Chat Transcript & Pair Programming Logs](#-bonus-llm-chat-transcript)
+8. [Zip Archive Download](#-zip-archive-download)
+
+---
+
+## 🔍 Overview
+
+InvestAI conducts multi-dimensional investment analysis in seconds:
+- 📊 **Financial Health Stats:** Pulls key financial stats (Market Cap, P/E, Margins, Cash, Debt, FCF) directly from Yahoo Finance.
+- 📰 **Sentiment & Catalysts:** Analyzes news narrative and investor mood to determine overall market sentiment (Bullish/Neutral/Bearish).
+- ⚔️ **Competitive Landscape:** Assesses economic moat strength, identifies key competitors, and rates industry disruption risk.
+- 🧠 **Synthesis & Verdict:** An AI analyst synthesizes all inputs to render a clear verdict, rating confidence (0–100%) and providing actionable reasoning.
+- 📈 **Interactive Data Visualizations:** Displays tabbed charts (Margins, Cash vs. Debt, and Price Benchmarks) to visualize metrics.
+- 🔄 **Graceful Offline Mode:** Runs seamlessly even if MongoDB is offline or inaccessible, skipping saves and loading fallback empty states without hanging or crashing.
+
+---
+
+## 🚀 How to Run
 
 ### Prerequisites
-- Node.js 18+
-- MongoDB Atlas account (or local MongoDB)
+- **Node.js** v20+ (recommended for full `yahoo-finance2` compatibility)
+- **MongoDB Atlas** or a local MongoDB database (optional)
+- **API Keys** for Groq (Llama 3.3 primary LLM) and Google AI Studio (Gemini 1.5 fallback LLM)
 
-### 1. Clone & install
-
+### 1. Installation
+Clone the repository and install dependencies in both the `server` and `client` folders:
 ```bash
-# Install server dependencies
+# Install backend dependencies
 cd server
 npm install
 
-# Install client dependencies
+# Install frontend dependencies
 cd ../client
 npm install
 ```
 
-### 2. Set environment variables
-
-Copy `server/.env.example` to `server/.env` and fill in:
-
+### 2. Configure Environment Variables
+Create a `.env` file in the `server` directory by copying `.env.example`:
+```bash
+cp server/.env.example server/.env
+```
+Fill in the following values inside `server/.env`:
 ```env
-MONGODB_URI=mongodb+srv://...
-GROQ_API_KEY=gsk_...
-GEMINI_API_KEY=AIza...
-PORT=5000
+MONGODB_URI=mongodb+srv://...       # Your MongoDB connection string
+GROQ_API_KEY=gsk_...                # Groq API key (Primary LLM)
+GEMINI_API_KEY=AQ...                # Gemini API key (Fallback LLM)
+PORT=5000                           # Port for backend server
+CLIENT_URL=http://localhost:5173    # Frontend URL (for CORS)
 ```
 
-### 3. Run
+### 3. Running the App
+Start both processes locally.
 
-**Terminal 1 — Backend:**
+**Backend Server:**
 ```bash
 cd server
 npm run dev
 ```
+*The server will run on `http://localhost:5000`.*
 
-**Terminal 2 — Frontend:**
+**Frontend Client:**
 ```bash
 cd client
 npm run dev
 ```
-
-Open **http://localhost:5173**
+*The React web app will open at `http://localhost:5173/`.*
 
 ---
 
-## How It Works — Architecture
+## 🛠️ How It Works
+
+### Approach & Architecture
+InvestAI uses a decoupled **React frontend** and **Express backend** powered by **LangGraph.js** to run the agentic workflow.
 
 ```
-User → React Frontend (Vite)
-         ↕ POST /api/research (Server-Sent Events)
-       Node.js + Express Backend
-         ↕
-       LangGraph.js StateGraph
-         ├─ Node 1: companyProfile   → Find ticker, LLM company overview
-         ├─ Node 2: financialAnalysis → Yahoo Finance API + LLM analysis
-         ├─ Node 3: sentimentAnalysis → LLM sentiment from general knowledge
-         ├─ Node 4: competitiveAnalysis → LLM moat & competitor analysis
-         └─ Node 5: finalVerdict     → Synthesize → INVEST/PASS/HOLD + score
-         ↕
-       MongoDB (persist all reports)
+       [ React Frontend (Vite) ]
+                  ↕
+       [ Express API Server ] (SSE Streams)
+                  ↕
+       [ LangGraph StateGraph ]
+          ├─ Node 1: Company Profile  (Ticker validation & Overview)
+          ├─ Node 2: Financial Stats  (Yahoo Finance scraper + LLM Summary)
+          ├─ Node 3: Market Sentiment (LLM Catalyst & News Narrative)
+          ├─ Node 4: Economic Moat    (Moat strength & Competitor profiles)
+          └─ Node 5: Investment Decision (Synthesis & INVEST/PASS/HOLD Verdict)
+                  ↕
+       [ MongoDB Database ] (Past Reports Storage)
 ```
 
-### Agent Framework: LangGraph.js
-The agent is built as a **StateGraph** — a directed acyclic graph where each node enriches the shared state. This means:
-- Each analysis step gets full context from prior steps
-- The final verdict node sees all research before deciding
-- Steps run sequentially (compound context building)
-
-### LLM: Groq (primary) + Gemini (fallback)
-- **Groq** (`llama-3.3-70b-versatile`) is the primary LLM — extremely fast inference (~300 tok/s)
-- **Gemini** (`gemini-1.5-flash`) auto-activates if Groq fails or rate-limits
-- All prompts are structured to return JSON for reliable parsing
-
-### Streaming: Server-Sent Events (SSE)
-Instead of waiting 30–60 seconds for a full response, the UI receives live step updates via SSE. Each LangGraph node completion sends an event to the frontend, so users see the agent "thinking" in real time.
-
-### Data: Yahoo Finance (yahoo-finance2)
-Free, no API key needed. Fetches: price, market cap, P/E, forward P/E, EPS, revenue, margins, debt/equity, FCF, 52-week range, analyst consensus, target prices.
+1. **State Management (LangGraph.js):** The research pipeline is built using a stateful directed graph (`StateGraph`). Each graph node executes a specialized analytical step and appends its structured data to the shared state, creating a unified compound context for the final verdict.
+2. **LLM Orchestration:** `llama-3.3-70b-versatile` via **Groq** serves as the primary intelligence due to its high speeds. If rate limits or timeouts occur, it automatically switches to `gemini-1.5-flash` via **Google AI SDK** as a fallback.
+3. **Real-time Streaming:** Long-running agent analyses can feel sluggish. InvestAI uses **Server-Sent Events (SSE)** to stream step logs, ticker updates, and intermediate findings to the UI in real time.
+4. **Data Aggregation:** We scrape live financial metrics and analyst consensus using the `yahoo-finance2` library.
 
 ---
 
-## Key Decisions & Trade-offs
+## ⚖️ Key Decisions & Trade-offs
 
-| Decision | Rationale | Trade-off |
-|---|---|---|
-| **Groq over OpenAI** | 10x faster, free tier, llama-3.3-70b is excellent for analysis | Groq may rate-limit at high volume |
-| **Yahoo Finance (free)** | No API key needed, comprehensive data | Real-time data only, limited history |
-| **SSE over WebSocket** | Simpler server-side, works over HTTP/1.1, no upgrade needed | Unidirectional only (but sufficient here) |
-| **LangGraph sequential flow** | Each node builds on prior state — richer final verdict | Slower than parallel; ~45s total |
-| **MongoDB persistence** | Users can revisit past analyses without re-running the agent | Adds latency on save; schema is flexible |
-| **No real news API** | Kept stack minimal per requirement (Yahoo Finance only) | Sentiment is based on LLM knowledge, not live news |
+### 1. Fail-Fast Mongoose Setup vs. Query Buffering
+* **Decision:** We globally disabled Mongoose's default command buffering (`bufferCommands: false`) and wrapped all database queries/saves with connectivity state checks.
+* **Trade-off:** If MongoDB is offline (e.g., due to Atlas IP whitelisting limits), report saving is skipped and the history list renders an empty state instantly. This ensures the primary analysis feature remains fully functional without 10-second request timeouts or socket hang-ups (`net::ERR_CONNECTION_RESET`).
 
-**Left out:**
-- Real-time news (would add Tavily/NewsAPI with more time)
-- Portfolio tracking / watchlist
-- Historical chart visualization (Recharts ready but not wired to historical data)
-- User authentication
+### 2. Direct Ticker Verification vs. Search Scraper
+* **Decision:** Updated the ticker utility to validate input strings directly against Yahoo Finance's quote endpoint.
+* **Trade-off:** Ticker symbols input directly (like `ETERNAL.NS` or `AAPL`) skip search query steps, improving lookup speed. If the input is a company name (e.g., "Apple"), it falls back to the search index and filters out non-financial Crunchbase records.
+
+### 3. Recharts tabbed stats visualization
+* **Decision:** Integrated interactive tabbed graphs (Profitability, Balance Sheet, Price Ranges) into the dashboard.
+* **Trade-off:** Adds a visual layer that requires processing data array ranges client-side, but significantly improves UI appeal.
 
 ---
 
-## Example Runs
+## 📈 Example Runs
 
-### Apple (AAPL) — INVEST
-> "Apple's wide economic moat (brand, ecosystem lock-in, services growth) combined with healthy margins (26% net) and $65B FCF makes it a strong long-term hold with upside. Verdict: **INVEST** | Score: 82"
+### 1. Apple Inc. (`AAPL`) — Verdict: INVEST (Score: 82/100)
+- **Summary:** Highly robust business profile, wide economic moat from ecosystem lock-in, strong gross margins (approx. 46%), and massive free cash flow generation.
+- **Verdict Details:** High gross margins and services growth make it an attractive long-term hold with low volatility.
 
-### Tesla (TSLA) — HOLD
-> "Tesla faces margin compression from price cuts and intensifying EV competition. Strong brand and energy business provide upside, but valuation remains stretched at current levels. Verdict: **HOLD** | Score: 54"
-
-### Zomato — INVEST
-> "Zomato's transition to profitability, strong India market position, and Blinkit hypergrowth make it a compelling growth story despite ongoing cash burn. Verdict: **INVEST** | Score: 71"
-
----
-
-## What I Would Improve With More Time
-
-1. **Live news ingestion** — Integrate Tavily or NewsAPI for real-time sentiment
-2. **Historical charts** — Plot 1Y/5Y price performance using Yahoo Finance historical data
-3. **Multi-company comparison** — Side-by-side INVEST/PASS scoring for a watchlist
-4. **Portfolio mode** — Track a basket of stocks, get aggregate risk score
-5. **Voice input** — Speak a company name, get verbal verdict (ElevenLabs TTS)
-6. **Vercel deployment** — Deploy frontend to Vercel + backend to Railway/Render
-7. **Better error recovery** — Retry individual failed LangGraph nodes instead of whole pipeline
-8. **DCF model** — Integrate a simple Discounted Cash Flow calculation for intrinsic value
+### 2. Eternal greetings Ltd (`ETERNAL.NS` / formerly Zomato listing) — Verdict: PASS (Score: 80/100)
+- **Background:** Zomato was officially renamed to **Eternal Limited** in March 2025 (trading under `ETERNAL.NS` / `ETERNAL.BO`).
+- **Summary:** High debt-to-equity ratio, low operating margins, and negative return on assets make it a very high-risk investment.
+- **Verdict Details:** Recommended pass due to underlying balance sheet stress.
 
 ---
 
-## Tech Stack
+## 🔮 What We Would Improve with More Time
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 18 + Vite, Vanilla CSS |
-| Backend | Node.js + Express |
-| AI Orchestration | LangChain.js + LangGraph.js |
-| Primary LLM | Groq (llama-3.3-70b-versatile) |
-| Fallback LLM | Google Gemini (gemini-1.5-flash) |
-| Financial Data | yahoo-finance2 (free) |
-| Database | MongoDB Atlas (Mongoose) |
-| Streaming | Server-Sent Events (SSE) |
+1. **Live News Crawling:** Integrate Tavily search or NewsAPI inside the Sentiment node to inject actual live weekly news articles instead of relying solely on the LLM's parametric knowledge.
+2. **Historical Stock Charts:** Wire the Recharts component to historical datasets (using Yahoo Finance's `chart` endpoint) to plot 1-year and 5-year historical trends.
+3. **Discounted Cash Flow (DCF) Calculator:** Code a mathematical DCF modeling script inside the financial tools layer to supply an automated "intrinsic value" estimate alongside the LLM's opinion.
+4. **Multi-Stock Comparison:** Create a comparison matrix allowing users to pin 3 companies side-by-side to review verdicts, scores, and P/E ratios.
 
 ---
 
-*Built with AI assistance (Antigravity IDE / Claude) as part of the InsideIIM AI Product Intern assignment.*
+## 💬 BONUS: LLM Chat Transcript
+
+We pair-programmed this assignment interactively with the AI agent. You can view the full development logs, prompt records, and debug timelines in the file:
+👉 **[LLM_CHAT_TRANSCRIPT.md](file:///c:/Users/hrida/Documents/Inside%20IIm/Invest%20AI/LLM_CHAT_TRANSCRIPT.md)**
+
+---
+
+## 📦 Zip Archive Download
+
+The project codebase, assets, and README files have been packaged into a single ZIP file for submission.
+
+📁 **Local Path:** [InvestAI_Assignment.zip](file:///c:/Users/hrida/Documents/Inside%20IIm/Invest%20AI/InvestAI_Assignment.zip)
+
+*(See instructions in the response on how to download or access this file if hosted).*
