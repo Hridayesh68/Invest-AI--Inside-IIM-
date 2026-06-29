@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Report = require('../models/Report');
 const { runInvestmentAgent } = require('../agents/investmentAgent');
 
-// POST /api/research — Stream agent progress via SSE
+// SSE stream for agent research progress
 router.post('/research', async (req, res) => {
   const { company } = req.body;
 
@@ -12,7 +12,7 @@ router.post('/research', async (req, res) => {
     return res.status(400).json({ error: 'Please provide a valid company name.' });
   }
 
-  // Set up SSE headers
+  // Set SSE headers
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
@@ -41,7 +41,7 @@ router.post('/research', async (req, res) => {
       return;
     }
 
-    // Save to MongoDB
+    // Save report to DB
     if (mongoose.connection.readyState === 1) {
       try {
         const report = new Report({
@@ -63,7 +63,7 @@ router.post('/research', async (req, res) => {
         sendEvent('saved', { reportId: saved._id });
       } catch (dbError) {
         console.error('[routes] MongoDB save error:', dbError.message);
-        // Don't fail — still send results
+        // Keep going even if saving to DB fails
       }
     } else {
       console.log('[routes] Skipping MongoDB save: database is disconnected');
@@ -95,7 +95,7 @@ router.post('/research', async (req, res) => {
   }
 });
 
-// GET /api/reports — Get past research reports
+// Get past research reports
 router.get('/reports', async (req, res) => {
   if (mongoose.connection.readyState !== 1) {
     return res.json([]);
@@ -111,7 +111,7 @@ router.get('/reports', async (req, res) => {
   }
 });
 
-// GET /api/reports/:id — Get single report
+// Get single report
 router.get('/reports/:id', async (req, res) => {
   if (mongoose.connection.readyState !== 1) {
     return res.status(503).json({ error: 'Database disconnected' });
@@ -125,7 +125,7 @@ router.get('/reports/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/reports/:id — Delete a report
+// Delete a report
 router.delete('/reports/:id', async (req, res) => {
   if (mongoose.connection.readyState !== 1) {
     return res.status(503).json({ error: 'Database disconnected' });

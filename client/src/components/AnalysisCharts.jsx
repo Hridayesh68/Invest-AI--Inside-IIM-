@@ -21,7 +21,7 @@ export default function AnalysisCharts({ financials }) {
   const currency = financials.currency || '$';
   const price = financials.currentPrice || 0;
   
-  // ─── Margins & Growth Data ───
+  // Margins & Growth Data
   const marginsData = [
     { name: 'Gross Margin', value: (financials.grossMargins || 0) * 100 },
     { name: 'Operating Margin', value: (financials.operatingMargins || 0) * 100 },
@@ -29,14 +29,14 @@ export default function AnalysisCharts({ financials }) {
     { name: 'Revenue Growth', value: (financials.revenueGrowth || 0) * 100 },
   ];
 
-  // ─── Debt & Cash Data ───
+  // Debt & Cash Data
   const balanceSheetData = [
     { name: 'Total Revenue', amount: financials.totalRevenue || 0, fill: '#9CB080' },
     { name: 'Total Cash', amount: financials.totalCash || 0, fill: '#618764' },
     { name: 'Total Debt', amount: financials.totalDebt || 0, fill: '#c25953' },
   ];
 
-  // ─── Price Comparison Data ───
+  // Price Comparison Data
   const priceRangeData = [];
   if (financials.fiftyTwoWeekLow) priceRangeData.push({ name: '52W Low', price: financials.fiftyTwoWeekLow });
   if (price) priceRangeData.push({ name: 'Current Price', price: price });

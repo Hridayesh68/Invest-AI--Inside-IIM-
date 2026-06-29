@@ -56,6 +56,7 @@ coverage/
 
 # ─── Binaries & Generated ────────────────────────────────────────────────────
 *.map
+*.zip
 
 # ─── Lock files (keep package-lock.json, exclude yarn/pnpm) ─────────────────
 yarn.lock

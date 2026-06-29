@@ -9,14 +9,14 @@ const researchRoutes = require('./routes/research');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
+// Middleware
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
 
-// ─── Routes ───────────────────────────────────────────────────────────────────
+// Routes
 app.use('/api', researchRoutes);
 
 // Health check
@@ -28,7 +28,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// ─── MongoDB Connection ───────────────────────────────────────────────────────
+// Database Connection
 async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
@@ -41,7 +41,7 @@ async function connectDB() {
   }
 }
 
-// ─── Start Server ─────────────────────────────────────────────────────────────
+// Server Startup
 async function start() {
   await connectDB();
   app.listen(PORT, () => {

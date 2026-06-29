@@ -170,7 +170,7 @@ export default function App() {
 
   return (
     <div className="app">
-      {/* ── Header ── */}
+      {/* Header */}
       <header className="header">
         <div className="header-logo">
           <div className="logo-icon">📈</div>
@@ -181,10 +181,10 @@ export default function App() {
         </div>
       </header>
 
-      {/* ── Main ── */}
+      {/* Main */}
       <main className="main">
 
-        {/* ── Hero ── */}
+        {/* Hero */}
         <section className="hero">
           <div className="hero-eyebrow">
             <div className="hero-eyebrow-dot" />
@@ -208,12 +208,12 @@ export default function App() {
           />
         </section>
 
-        {/* ── Agent Thinking ── */}
+        {/* Agent Thinking */}
         {(isLoading || (steps.length > 0 && !result)) && (
           <AgentThinking steps={steps} company={currentCompany} />
         )}
 
-        {/* ── Loading spinner while starting ── */}
+        {/* Loading spinner while starting */}
         {isLoading && steps.length === 0 && (
           <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>
             <div className="loading-dots" style={{ justifyContent: 'center' }}>
@@ -223,7 +223,7 @@ export default function App() {
           </div>
         )}
 
-        {/* ── Error ── */}
+        {/* Error */}
         {error && (
           <div className="error-box animate-in">
             <AlertCircle size={32} color="var(--accent-red)" style={{ marginBottom: 12 }} />
@@ -235,7 +235,7 @@ export default function App() {
           </div>
         )}
 
-        {/* ── Results Dashboard ── */}
+        {/* Results Dashboard */}
         {showResults && (
           <section className="results-section animate-in" ref={resultsRef} id="results-section">
             <div className="divider" />
@@ -280,7 +280,7 @@ export default function App() {
           </section>
         )}
 
-        {/* ── Past Reports ── */}
+        {/* Past Reports */}
         <div className="divider" style={{ marginTop: 60 }} />
         <PastReports key={pastReportsKey} onSelectReport={handleSelectPastReport} />
       </main>

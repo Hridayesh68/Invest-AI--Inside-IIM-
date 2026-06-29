@@ -96,7 +96,7 @@ async function fetchFinancialData(ticker) {
  */
 async function findTicker(companyName) {
   try {
-    // If the input already looks like a ticker (e.g. ETERNAL.NS or AAPL), try direct validation
+    // Direct validation if input matches ticker pattern (e.g., ETERNAL.NS)
     if (/^[A-Z0-9.\-]+$/i.test(companyName.trim())) {
       try {
         const quote = await yahooFinance.quote(companyName.trim().toUpperCase());
@@ -108,7 +108,7 @@ async function findTicker(companyName) {
 
     const results = await yahooFinance.search(companyName, { quotesCount: 5 });
     if (results.quotes && results.quotes.length > 0) {
-      // Prefer equity type results with a symbol
+      // Look for equities first
       const equity = results.quotes.find(q => q.quoteType === 'EQUITY' && q.symbol);
       if (equity) return equity.symbol;
 

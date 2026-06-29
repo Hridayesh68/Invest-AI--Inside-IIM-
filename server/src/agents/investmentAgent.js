@@ -4,7 +4,7 @@ const { StateGraph, Annotation, END } = require('@langchain/langgraph');
 const { HumanMessage, SystemMessage } = require('@langchain/core/messages');
 const { fetchFinancialData, findTicker } = require('../tools/financialData');
 
-// ─── LLM Setup ────────────────────────────────────────────────────────────────
+// LLM Setup
 function getGroqLLM() {
   return new ChatGroq({
     apiKey: process.env.GROQ_API_KEY,
@@ -60,9 +60,8 @@ function parseJSON(text, fallback = {}) {
   return fallback;
 }
 
-// ─── State Schema (Annotation API — LangGraph v1.x) ──────────────────────────
-// IMPORTANT: Node names must NOT match state key names in LangGraph.
-// We use node names: stepProfile, stepFinancials, stepSentiment, stepCompetitive, stepVerdict
+// LangGraph State Schema
+// Node names must be distinct from state key names in LangGraph v1.x to avoid channel conflicts.
 const AgentState = Annotation.Root({
   companyName:        Annotation({ reducer: (x, y) => y ?? x, default: () => '' }),
   ticker:             Annotation({ reducer: (x, y) => y ?? x, default: () => null }),
@@ -82,7 +81,7 @@ const AgentState = Annotation.Root({
   agentError:         Annotation({ reducer: (x, y) => y ?? x, default: () => null }),
 });
 
-// ─── Node: stepProfile — Company Profile & Ticker Discovery ──────────────────
+// Node: Company Profile & Ticker Discovery
 async function stepProfile(state) {
   const steps = [...state.steps, { id: 1, title: 'Company Identification', status: 'running' }];
   try {
@@ -130,7 +129,7 @@ Respond ONLY with valid JSON (no markdown):
   }
 }
 
-// ─── Node: stepFinancials — Financial Data & Analysis ────────────────────────
+// Node: Financial Data & Analysis
 async function stepFinancials(state) {
   if (state.agentError) return {};
   const steps = [...state.steps, { id: 2, title: 'Financial Analysis', status: 'running' }];
@@ -178,7 +177,7 @@ Respond ONLY with valid JSON:
   }
 }
 
-// ─── Node: stepSentiment — Market Sentiment Analysis ─────────────────────────
+// Node: Market Sentiment Analysis
 async function stepSentiment(state) {
   if (state.agentError) return {};
   const steps = [...state.steps, { id: 3, title: 'Sentiment & News Analysis', status: 'running' }];
@@ -225,7 +224,7 @@ Respond ONLY with valid JSON:
   }
 }
 
-// ─── Node: stepCompetitive — Competitive Analysis ────────────────────────────
+// Node: Competitive Analysis
 async function stepCompetitive(state) {
   if (state.agentError) return {};
   const steps = [...state.steps, { id: 4, title: 'Competitive Analysis', status: 'running' }];
@@ -274,7 +273,7 @@ Respond ONLY with valid JSON:
   }
 }
 
-// ─── Node: stepVerdict — Final Investment Verdict ────────────────────────────
+// Node: Final Investment Verdict
 async function stepVerdict(state) {
   if (state.agentError) return {};
   const steps = [...state.steps, { id: 5, title: 'Generating Investment Verdict', status: 'running' }];
@@ -342,9 +341,7 @@ Respond ONLY with valid JSON:
   }
 }
 
-// ─── Build LangGraph ──────────────────────────────────────────────────────────
-// Node names are deliberately different from all state field names to comply
-// with LangGraph.js v1.x constraint: node name != state channel name
+// Build LangGraph workflow
 function buildResearchGraph() {
   const graph = new StateGraph(AgentState)
     .addNode('stepProfile',    stepProfile)
